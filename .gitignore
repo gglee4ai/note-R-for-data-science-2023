@@ -1,3 +1,14 @@
+# My gitignore
+*_temp
+*.RData
+*.nb.html
+.DS_Store
+~$*
+__*
+*.swp
+Thumbs.db
+
+
 # History files
 .Rhistory
 .Rapp.history
