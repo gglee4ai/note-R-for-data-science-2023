@@ -1,0 +1,244 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(nycflights13)
+library(tidyverse)
+```
+
+```{r}
+flights
+```
+
+```{r}
+glimpse(flights)
+```
+
+```{r}
+flights |>
+  filter(dest == "IAH") |>
+  group_by(year, month, day) |>
+  summarize(
+    arr_delay = mean(arr_delay, na.rm = TRUE)
+  )
+```
+
+```{r}
+flights |>
+  filter(dep_delay > 120)
+```
+
+```{r}
+flights |>
+  filter(month == 1 & day == 1)
+```
+
+```{r}
+flights |>
+  filter(month == 1 | month == 2)
+```
+
+```{r}
+flights |>
+  filter(month %in% c(1, 2))
+```
+
+```{r}
+flights |>
+  arrange(year, month, day, dep_time)
+```
+
+```{r}
+flights |>
+  arrange(desc(dep_delay))
+```
+
+```{r}
+flights |>
+  distinct()
+```
+
+```{r}
+flights |>
+  distinct(origin, dest)
+```
+
+```{r}
+flights |>
+  distinct(origin, dest, .keep_all = TRUE)
+```
+
+```{r}
+flights |>
+  count(origin, dest, sort = TRUE)
+```
+
+```{r}
+flights |>
+  mutate(
+    gain = dep_delay - arr_delay,
+    speed = distance / air_time * 60,
+    .before = 1
+  )
+```
+
+```{r}
+flights |>
+  mutate(
+    gain = dep_delay - arr_delay,
+    speed = distance / air_time * 60,
+    .after = day
+  )
+```
+
+```{r}
+flights |>
+  mutate(
+    gain = dep_delay - arr_delay,
+    hours = air_time / 60,
+    gain_per_hour = gain / hours,
+    .keep = "used"
+  )
+```
+
+```{r}
+flights |>
+  select(where(is.character))
+```
+
+```{r}
+flights |>
+  select(starts_with("dep"))
+```
+
+```{r}
+flights |>
+  select(ends_with("time"))
+```
+
+```{r}
+flights |>
+  select(contains("sched"))
+```
+
+```{r}
+flights |>
+  select(tail_num = tailnum)
+```
+
+```{r}
+flights |>
+  rename(tail_num = tailnum)
+```
+
+```{r}
+flights |>
+  relocate(time_hour, air_time)
+```
+
+```{r}
+flights |>
+  relocate(year:dep_time, .after = time_hour)
+```
+
+```{r}
+flights |>
+  relocate(starts_with("arr"), .before = dep_time)
+```
+
+```{r}
+flights |>
+  filter(dest == "IAH") |>
+  mutate(speed = distance / air_time * 60) |>
+  select(year:day, dep_time, carrier, flight, speed) |>
+  arrange(desc(speed))
+```
+
+```{r}
+flights |>
+  group_by(month)
+```
+
+```{r}
+flights |>
+  group_by(month) |>
+  summarize(
+    avg_delay = mean(dep_delay, na.rm = TRUE),
+    n = n()
+  )
+```
+
+```{r}
+flights |>
+  group_by(dest) |>
+  slice_max(arr_delay, n = 1, with_ties = FALSE) |>
+  relocate(dest)
+```
+
+```{r}
+daily <- flights |>
+  group_by(year, month, day)
+daily
+```
+
+```{r}
+daily |>
+  summarize(n = n())
+```
+
+```{r}
+daily_flights <- daily |>
+  summarize(
+    n = n(),
+    .groups = "drop_last"
+  )
+daily_flights
+```
+
+```{r}
+daily |> ungroup()
+```
+
+```{r}
+flights |>
+  summarize(
+    delay = mean(dep_delay, na.rm = TRUE),
+    n = n(),
+    .by = month
+  )
+```
+
+```{r}
+flights |>
+  summarize(
+    delay = mean(dep_delay, na.rm = TRUE),
+    n = n(),
+    .by = c(origin, dest)
+  ) |>
+  arrange(origin, dest)
+```
+
+```{r}
+batters <- Lahman::Batting |>
+  group_by(playerID) |>
+  summarize(
+    performance = sum(H, na.rm = TRUE) / sum(AB, na.rm = TRUE),
+    n = sum(AB, na.rm = TRUE)
+  )
+batters
+```
+
+```{r}
+batters |>
+  filter(n > 100) |>
+  ggplot(aes(n, performance)) +
+  geom_point(alpha = 1 / 10) +
+  geom_smooth(se = FALSE)
+```
+
+```{r}
+batters |>
+  arrange(desc(performance))
+```
