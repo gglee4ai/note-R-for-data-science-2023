@@ -3,17 +3,159 @@ title: "R Notebook"
 output: html_notebook
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
-
 ```{r}
-plot(cars)
+library(tidyverse)
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+```{r}
+ggplot(diamonds, aes(x = carat)) +
+  geom_histogram(binwidth = 0.5)
+```
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+```{r}
+smaller <- diamonds |>
+  filter(carat < 3)
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+ggplot(smaller, aes(carat)) +
+  geom_histogram(binwidth = 0.01)
+```
 
+```{r}
+ggplot(diamonds, aes(x = y)) +
+  geom_histogram()
+```
+
+```{r}
+ggplot(diamonds, aes(x = y)) +
+  geom_histogram(bindwidth = 0.5) +
+  coord_cartesian(ylim = c(0, 50))
+
+ggplot(diamonds, aes(x = y)) +
+  geom_histogram(bindwidth = 0.5) +
+  ylim(0, 50)
+```
+
+```{r}
+ggplot(diamonds, aes(x = y)) +
+  geom_histogram(bindwidth = 0.5) +
+  ylim(0, 50)
+```
+
+```{r}
+diamonds2 <-
+  diamonds |>
+  mutate(y = if_else(y < 3 | y > 20, NA, y))
+```
+
+```{r}
+ggplot(diamonds2, aes(x, y)) +
+  geom_point(na.rm = TRUE)
+```
+
+```{r}
+nycflights13::flights |>
+  mutate(
+    cancelled = is.na(dep_time),
+    sched_hour = sched_dep_time %/% 100,
+    sched_min = sched_dep_time %% 100,
+    sched_dep_time = sched_hour + (sched_min / 60)
+  ) |>
+  ggplot(aes(x = sched_dep_time)) +
+  geom_freqpoly(aes(color = cancelled), binwidth = 1 / 4)
+```
+
+```{r}
+ggplot(diamonds, aes(x = price)) +
+  geom_freqpoly(aes(color = cut), binwidth = 500, linewidth = 0.75)
+```
+
+```{r}
+ggplot(diamonds, aes(x = price, after_stat(density))) +
+  geom_freqpoly(aes(color = cut), binwidth = 500, linewidth = 0.75)
+```
+
+```{r}
+ggplot(diamonds, aes(x = cut, y = price)) +
+  geom_boxplot()
+```
+
+```{r}
+ggplot(mpg, aes(class, hwy)) +
+  geom_boxplot()
+```
+
+```{r}
+ggplot(mpg, aes(x = fct_reorder(class, hwy, median), y = hwy)) +
+  geom_boxplot()
+```
+
+```{r}
+ggplot(mpg, aes(x = hwy, y = fct_reorder(class, hwy, median))) +
+  geom_boxplot()
+```
+
+```{r}
+ggplot(diamonds, aes(x = cut, y = color)) +
+  geom_count()
+```
+
+```{r}
+diamonds |>
+  count(color, cut)
+```
+
+```{r}
+diamonds |>
+  count(color, cut) |>
+  ggplot(aes(color, y = cut)) +
+  geom_tile(aes(fill = n))
+```
+
+```{r}
+ggplot(smaller, aes(x = carat, y = price)) +
+  geom_point()
+```
+
+```{r}
+ggplot(smaller, aes(x = carat, y = price)) +
+  geom_point(alpha = 1 / 100)
+```
+
+```{r}
+ggplot(smaller, aes(x = carat, y = price)) +
+  geom_bin2d()
+```
+
+```{r}
+ggplot(smaller, aes(x = carat, y = price)) +
+  geom_hex()
+```
+
+```{r}
+ggplot(smaller, aes(x = carat, y = price)) +
+  geom_boxplot(aes(group = cut_width(carat, 0.1)), varwidth = TRUE)
+```
+
+```{r}
+library(tidymodels)
+
+diamonds <- diamonds |>
+  mutate(
+    log_price = log(price),
+    log_carat = log(carat)
+  )
+
+diamonds_fit <- linear_reg() |>
+  fit(log_price ~ log_carat, data = diamonds)
+
+diamonds_aug <- augment(diamonds_fit, new_data = diamonds) |>
+  mutate(.resid = exp(.resid))
+
+ggplot(diamonds_aug, aes(x = carat, y = .resid)) +
+  geom_point()
+```
+
+```{r}
+ggplot(diamonds_aug, aes(x = cut, y = .resid)) +
+  geom_boxplot()
+```
