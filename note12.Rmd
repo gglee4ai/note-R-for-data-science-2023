@@ -34,21 +34,21 @@ ggplot(df, aes(x, y)) +
   geom_point() +
   labs(
     x = quote(x[i]),
-    y = quote(sum(x[i] ^ 2, i == 1, n))
+    y = quote(sum(x[i]^2, i == 1, n))
   )
 ```
 
 ```{r}
-label_info <- mpg |> 
-  group_by(drv) |> 
-  slice_head(n = 1) |> 
+label_info <- mpg |>
+  group_by(drv) |>
+  slice_head(n = 1) |>
   mutate(
     drive_type = case_when(
       drv == "f" ~ "front-wheeel drive",
       drv == "r" ~ "rear-wheeel drive",
       drv == "4" ~ "4-wheeel drive",
     )
-  ) |> 
+  ) |>
   select(displ, hwy, drv, drive_type)
 label_info
 ```
@@ -62,16 +62,15 @@ ggplot(mpg, aes(x = displ, y = hwy, color = drv)) +
     aes(x = displ, y = hwy, label = drive_type),
     fontface = "bold", size = 5, hjust = "left", vjust = "bottom"
   )
-  theme(legend.position = "none")
+theme(legend.position = "none")
 ```
-
 
 ```{r}
 ggplot(mpg, aes(x = displ, y = hwy, color = drv)) +
   geom_point(alpha = 0.3) +
   geom_smooth(se = FALSE) +
   geom_label_repel(
-    data = label_info, 
+    data = label_info,
     aes(x = displ, y = hwy, label = drive_type),
     fontface = "bold", size = 5, nudge_y = 2
   ) +
@@ -81,11 +80,11 @@ ggplot(mpg, aes(x = displ, y = hwy, color = drv)) +
 ```{r}
 potential_outliers <- mpg |>
   filter(hwy > 40 | (hwy > 20 & displ > 5))
-  
+
 ggplot(mpg, aes(x = displ, y = hwy)) +
   geom_point() +
   geom_text_repel(data = potential_outliers, aes(label = model)) +
-  #geom_point(data = potential_outliers, color = "red") +
+  # geom_point(data = potential_outliers, color = "red") +
   geom_point(data = potential_outliers, color = "red", size = 3, shape = "circle open")
 ```
 
@@ -126,8 +125,9 @@ ggplot(mpg, aes(x = displ, y = hwy)) +
 ```{r}
 ggplot(mpg, aes(x = displ, y = hwy, color = drv)) +
   geom_point() +
-  scale_y_continuous(breaks = seq(15, 40, by = 5)) 
+  scale_y_continuous(breaks = seq(15, 40, by = 5))
 ```
+
 ```{r}
 ggplot(mpg, aes(x = displ, y = hwy, color = drv)) +
   geom_point() +
@@ -146,7 +146,7 @@ ggplot(diamonds, aes(x = price, y = cut)) +
 ggplot(diamonds, aes(x = price, y = cut)) +
   geom_boxplot(alpha = 0.05) +
   scale_x_continuous(
-    labels = label_dollar(scale = 1/1000, suffix = "K"), 
+    labels = label_dollar(scale = 1 / 1000, suffix = "K"),
     breaks = seq(1000, 19000, by = 6000)
   )
 ```
@@ -172,10 +172,10 @@ base <- ggplot(mpg, aes(x = displ, y = hwy)) +
 
 base + theme(legend.position = "right") # the default
 base + theme(legend.position = "left")
-base + 
+base +
   theme(legend.position = "top") +
   guides(color = guide_legend(nrow = 3))
-base + 
+base +
   theme(legend.position = "bottom") +
   guides(color = guide_legend(nrow = 3))
 ```
@@ -198,11 +198,10 @@ ggplot(diamonds, aes(x = log10(carat), y = log10(price))) +
   geom_bin2d()
 
 ggplot(diamonds, aes(x = carat, y = price)) +
-  geom_bin2d() + 
-  scale_x_log10() + 
+  geom_bin2d() +
+  scale_x_log10() +
   scale_y_log10()
 ```
-
 
 ```{r}
 ggplot(mpg, aes(x = displ, y = hwy)) +
@@ -252,9 +251,6 @@ ggplot(df, aes(x, y)) +
   labs(title = "Viridis, binned", x = NULL, y = NULL)
 ```
 
-
-
-
 ```{r}
 # Left
 ggplot(mpg, aes(x = displ, y = hwy)) +
@@ -269,23 +265,21 @@ mpg |>
   geom_smooth()
 ```
 
-
 ```{r}
 # Left
 ggplot(mpg, aes(x = displ, y = hwy)) +
   geom_point(aes(color = drv)) +
   geom_smooth() +
-  scale_x_continuous(limits = c(5, 6)) +   # 데이터를 제어
-  scale_y_continuous(limits = c(10, 25))   # 데이터를 제어
+  scale_x_continuous(limits = c(5, 6)) + # 데이터를 제어
+  scale_y_continuous(limits = c(10, 25)) # 데이터를 제어
 ```
-
 
 ```{r}
 # Right
 ggplot(mpg, aes(x = displ, y = hwy)) +
   geom_point(aes(color = drv)) +
   geom_smooth() +
-  coord_cartesian(xlim = c(5, 6), ylim = c(10, 25))   # 출력만 제어
+  coord_cartesian(xlim = c(5, 6), ylim = c(10, 25)) # 출력만 제어
 ```
 
 ```{r}
@@ -300,7 +294,6 @@ ggplot(suv, aes(x = displ, y = hwy, color = drv)) +
 ggplot(compact, aes(x = displ, y = hwy, color = drv)) +
   geom_point()
 ```
-
 
 ```{r}
 x_scale <- scale_x_continuous(limits = range(mpg$displ))
@@ -322,15 +315,12 @@ ggplot(compact, aes(x = displ, y = hwy, color = drv)) +
   col_scale
 ```
 
-
-
 ```{r}
 ggplot(mpg, aes(x = displ, y = hwy)) +
   geom_point(aes(color = class)) +
   geom_smooth(se = FALSE) +
   theme_bw()
 ```
-
 
 ```{r}
 ggplot(mpg, aes(x = displ, y = hwy, color = drv)) +
@@ -350,45 +340,42 @@ ggplot(mpg, aes(x = displ, y = hwy, color = drv)) +
   )
 ```
 
-
 ```{r}
-p1 <- ggplot(mpg, aes(x = displ, y = hwy)) + 
-  geom_point() + 
+p1 <- ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point() +
   labs(title = "Plot 1")
-p2 <- ggplot(mpg, aes(x = drv, y = hwy)) + 
-  geom_boxplot() + 
+p2 <- ggplot(mpg, aes(x = drv, y = hwy)) +
+  geom_boxplot() +
   labs(title = "Plot 2")
 p1 + p2
 ```
 
-
 ```{r}
-p3 <- ggplot(mpg, aes(x = cty, y = hwy)) + 
-  geom_point() + 
+p3 <- ggplot(mpg, aes(x = cty, y = hwy)) +
+  geom_point() +
   labs(title = "Plot 3")
 (p1 | p3) / p2
 ```
 
-
 ```{r, fig.asp=1}
-p1 <- ggplot(mpg, aes(x = drv, y = cty, color = drv)) + 
-  geom_boxplot(show.legend = FALSE) + 
+p1 <- ggplot(mpg, aes(x = drv, y = cty, color = drv)) +
+  geom_boxplot(show.legend = FALSE) +
   labs(title = "Plot 1")
 
-p2 <- ggplot(mpg, aes(x = drv, y = hwy, color = drv)) + 
-  geom_boxplot(show.legend = FALSE) + 
+p2 <- ggplot(mpg, aes(x = drv, y = hwy, color = drv)) +
+  geom_boxplot(show.legend = FALSE) +
   labs(title = "Plot 2")
 
-p3 <- ggplot(mpg, aes(x = cty, color = drv, fill = drv)) + 
-  geom_density(alpha = 0.5) + 
+p3 <- ggplot(mpg, aes(x = cty, color = drv, fill = drv)) +
+  geom_density(alpha = 0.5) +
   labs(title = "Plot 3")
 
-p4 <- ggplot(mpg, aes(x = hwy, color = drv, fill = drv)) + 
-  geom_density(alpha = 0.5) + 
+p4 <- ggplot(mpg, aes(x = hwy, color = drv, fill = drv)) +
+  geom_density(alpha = 0.5) +
   labs(title = "Plot 4")
 
-p5 <- ggplot(mpg, aes(x = cty, y = hwy, color = drv)) + 
-  geom_point(show.legend = FALSE) + 
+p5 <- ggplot(mpg, aes(x = cty, y = hwy, color = drv)) +
+  geom_point(show.legend = FALSE) +
   facet_wrap(~drv) +
   labs(title = "Plot 5")
 
@@ -400,19 +387,6 @@ p5 <- ggplot(mpg, aes(x = cty, y = hwy, color = drv)) +
   plot_layout(
     guides = "collect",
     heights = c(1, 3, 2, 4)
-    ) &
+  ) &
   theme(legend.position = "top")
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
