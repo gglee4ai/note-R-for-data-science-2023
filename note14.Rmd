@@ -1,0 +1,322 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(nycflights13)
+```
+
+```{r}
+x <- c("1.2", "5.6", "1e3")
+parse_number(x)
+```
+
+```{r}
+flights |> count(dest, sort = TRUE)
+```
+
+```{r}
+flights |>
+  group_by(dest) |>
+  summarize(
+    n = n(),
+    delay = mean(arr_delay, na.rm = TRUE) |> round(2)
+  )
+```
+
+```{r}
+flights |>
+  group_by(dest) |>
+  summarize(carriers = n_distinct(carrier)) |>
+  arrange(desc(carriers))
+```
+
+```{r}
+flights |>
+  group_by(tailnum) |>
+  summarize(miles = sum(distance))
+```
+
+```{r}
+flights |> count(tailnum, wt = distance)
+```
+
+```{r}
+flights |>
+  group_by(dest) |>
+  summarize(n_cancelled = sum(is.na(dep_time)))
+```
+
+```{r}
+x <- c(1, 2, 10, 20)
+x / 5
+x / c(5, 5, 5, 5)
+```
+
+```{r}
+x * c(1, 2)
+```
+
+```{r}
+x * c(1, 2, 3)
+```
+
+```{r}
+flights |>
+  filter(month == c(1, 2))
+```
+
+```{r}
+df <- tribble(
+  ~x, ~y,
+  1, 3,
+  5, 2,
+  7, NA,
+)
+
+df |>
+  mutate(
+    min = pmin(x, y, na.rm = TRUE),
+    max = pmax(x, y, na.rm = TRUE)
+  )
+```
+
+```{r}
+df |>
+  mutate(
+    min = min(x, y, na.rm = TRUE),
+    max = max(x, y, na.rm = TRUE)
+  )
+```
+
+```{r}
+1:10 %/% 3
+1:10 %% 3
+```
+
+```{r}
+flights |>
+  mutate(
+    hour = sched_dep_time %/% 100,
+    minute = sched_dep_time %% 100,
+    .keep = "used"
+  )
+```
+
+```{r}
+flights |>
+  group_by(hour = sched_dep_time %/% 100) |>
+  summarize(prop_cancelled = mean(is.na(dep_time)), n = n()) |>
+  filter(hour > 1) |>
+  ggplot(aes(hour, prop_cancelled)) +
+  geom_line(color = "grey50") +
+  geom_point(aes(size = n))
+```
+
+```{r}
+round(123.456, 2)
+round(123.456, 2)
+round(123.456, -1)
+round(123.456, -2)
+```
+
+```{r}
+round(c(1.5, 2.5))
+```
+
+```{r}
+x <- 123.456
+floor(x / 0.01) * 0.01
+ceiling(x * 100) / 100
+```
+
+```{r}
+round(x / 4) * 4
+```
+
+```{r}
+round(x / 0.25) * 0.25
+```
+
+```{r}
+x <- c(1, 2, 5, 10, 15, 20)
+cut(x, breaks = c(0, 5, 10, 15, 20))
+```
+
+```{r}
+cut(x, breaks = c(0, 5, 10, 100))
+```
+
+```{r}
+cut(
+  x,
+  breaks = c(0, 5, 10, 15, 20),
+  labels = c("sm", "md", "lg", "xl")
+)
+```
+
+```{r}
+y <- c(NA, -10, 5, 10, 30)
+cut(y, breaks = c(0, 5, 10, 15, 20))
+```
+
+```{r}
+x <- 1:10
+cumsum(x)
+cumprod(x)
+```
+
+```{r}
+x <- c(1, 2, 2, 3, 4, NA)
+min_rank(x)
+min_rank(desc(x))
+```
+
+```{r}
+dense_rank((x))
+```
+
+```{r}
+row_number(x)
+```
+
+```{r}
+percent_rank(x)
+```
+
+```{r}
+cume_dist(x)
+```
+
+```{r}
+df <- tibble(x = x)
+df |>
+  mutate(
+    row_number = row_number(x),
+    min_rank = min_rank(x),
+    dense_rank = dense_rank(x),
+    percent_rank = percent_rank(x),
+    cume_dist = cume_dist(x)
+  )
+```
+
+```{r}
+df <- tibble(id = 1:10)
+
+df |>
+  mutate(
+    row0 = row_number() - 1,
+    three_groups = row0 %% 3,
+    three_in_each_group = row0 %/% 3
+  )
+```
+
+```{r}
+x <- c(2, 5, 11, 11, 19, 35)
+lag(x)
+lead(x)
+```
+
+```{r}
+x - lag(x)
+```
+
+```{r}
+x == lag(x)
+```
+
+```{r}
+events <- tibble(
+  time = c(0, 1, 2, 3, 5, 10, 12, 15, 17, 19, 20, 27, 28, 30)
+)
+```
+
+```{r}
+events <- events |>
+  mutate(
+    diff = time - lag(time, default = first(time)),
+    has_gap = diff >= 5
+  )
+events
+```
+
+```{r}
+events |> mutate(
+  group = cumsum(has_gap)
+)
+```
+
+```{r}
+df <- tibble(
+  x = c("a", "a", "a", "b", "c", "c", "d", "e", "a", "a", "b", "b"),
+  y = c(1, 2, 3, 2, 4, 1, 3, 9, 4, 8, 10, 199)
+)
+df
+```
+
+```{r}
+df |>
+  group_by(id = consecutive_id(x)) |>
+  slice_head(n = 1)
+```
+
+```{r}
+flights |>
+  group_by(year, month, day) |>
+  summarize(
+    mean = mean(dep_delay, na.rm = TRUE),
+    median = median(dep_delay, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(mean, median)) +
+  geom_abline(slope = 1, interept = 0, color = "white", linewidth = 2) +
+  geom_point()
+```
+
+```{r}
+flights |>
+  group_by(year, month, day) |>
+  summarize(
+    max = max(dep_delay, na.rm = TRUE),
+    q95 = quantile(dep_delay, 0.95, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+
+```{r}
+flights |>
+  group_by(origin, dest) |>
+  summarize(
+    distance_sd = IQR(distance),
+    n = n(),
+    .groups = "drop"
+  ) |>
+  filter(distance_sd > 0)
+```
+
+```{r}
+flights |>
+  filter(dep_delay < 120) |>
+  ggplot(aes(dep_delay, group = interaction(day, month))) +
+  geom_freqpoly(bindwidth = 5, alpha = 1 / 50)
+```
+
+```{r}
+flights |>
+  group_by(year, month, day) |>
+  summarize(
+    first_dep = first(dep_time, na_rm = TRUE),
+    fifth_dep = nth(dep_time, 5, na_rm = TRUE),
+    last_dep = last(dep_time, na_rm = TRUE)
+  )
+```
+
+```{r}
+flights |>
+  group_by(year, month, day) |>
+  mutate(r = min_rank(desc(sched_dep_time)), .before = 1, .keep = "used") |>
+  filter(r %in% c(1, max(r)))
+```
