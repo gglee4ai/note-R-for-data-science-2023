@@ -1,0 +1,284 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+df <- tibble(
+  a = rnorm(10),
+  b = rnorm(10),
+  c = rnorm(10),
+  d = rnorm(10)
+)
+```
+
+```{r}
+df |> summarize(
+  n = n(),
+  a = median(a),
+  b = median(b),
+  c = median(c),
+  d = median(d),
+)
+```
+
+```{r}
+df |>
+  summarize(
+    n = n(),
+    across(a:d, median)
+  )
+```
+
+```{r}
+df <- tibble(
+  grp = sample(2, 10, replace = TRUE),
+  a = rnorm(10),
+  b = rnorm(10),
+  c = rnorm(10),
+  d = rnorm(10)
+)
+
+df |>
+  group_by(grp) |>
+  summarize(across(everything(), median))
+```
+
+```{r}
+rnorm_na <- function(n, n_na, mean = 0, sd = 1) {
+  sample(c(rnorm(n - n_na, mean = mean, sd = sd), rep(NA, n_na)))
+}
+
+df_miss <- tibble(
+  a = rnorm_na(5, 1),
+  b = rnorm_na(5, 1),
+  c = rnorm_na(5, 2),
+  d = rnorm(5)
+)
+df_miss |>
+  summarize(
+    across(a:d, median),
+    n = n()
+  )
+```
+
+```{r}
+df_miss |>
+  summarize(
+    across(a:d, function(x) median(x, na.rm = TRUE)),
+    n = n()
+  )
+```
+
+```{r}
+df_miss |>
+  summarize(
+    across(a:d, \(x) median(x, na.rm = TRUE))
+  )
+```
+
+```{r}
+df_miss |>
+  summarize(
+    across(a:d, list(
+      median = \(x) median(x, na.rm = TRUE),
+      n_miss = \(x) sum(is.na(x))
+    )),
+    n = n()
+  )
+```
+
+```{r}
+df_miss |>
+  summarize(
+    across(
+      a:d,
+      list(
+        median = \(x) median(x, na.rm = TRUE),
+        n_miss = \(x) sum(is.na(x))
+      ),
+      .names = "{.fn}_{.col}"
+    ),
+    n = n(),
+  )
+```
+
+```{r}
+df_miss |>
+  mutate(
+    across(a:d, \(x) coalesce(x, 0), .names = "{.col}_abs")
+  )
+```
+
+```{r}
+df_miss |> filter(if_any(a:d, is.na))
+```
+
+```{r}
+df_miss |> filter(if_all(a:d, is.na))
+```
+
+```{r}
+expand_dates <- function(df) {
+  df |>
+    mutate(
+      across(where(is.Date), list(year = year, month = month, day = mday))
+    )
+}
+
+df_date <- tibble(
+  name = c("Amy", "Bob"),
+  date = ymd(c("2009-08-03", "2010-01-16"))
+)
+df_date
+
+df_date |>
+  expand_dates()
+```
+
+```{r}
+summarize_means <- function(df, summary_vars = where(is.numeric)) {
+  df |>
+    summarize(
+      across({{ summary_vars }}, \(x) mean(x, na.rm = TRUE)),
+      n = n()
+    )
+}
+diamonds |>
+  group_by(cut) |>
+  summarize_means()
+```
+
+```{r}
+diamonds |>
+  group_by(cut) |>
+  summarize_means(c(carat, x:z))
+```
+
+```{r}
+df |>
+  summarize(across(a:d, list(median = median, mean = mean)))
+```
+
+```{r}
+long <- df |>
+  pivot_longer(a:d) |>
+  group_by(name) |>
+  summarize(
+    median = median(value),
+    mean = mean(value)
+  )
+long
+```
+
+```{r}
+long |>
+  pivot_wider(
+    names_from = name,
+    values_from = c(median, mean),
+    names_vary = "slowest",
+    names_glue = "{name}_{.value}"
+  )
+```
+
+```{r}
+df_paired <- tibble(
+  a_val = rnorm(10),
+  a_wts = runif(10),
+  b_val = rnorm(10),
+  b_wts = runif(10),
+  c_val = rnorm(10),
+  c_wts = runif(10),
+  d_val = rnorm(10),
+  d_wts = runif(10)
+)
+df_paired
+```
+
+```{r}
+df_long <-
+  df_paired |>
+  pivot_longer(
+    everything(),
+    names_to = c("group", ".value"),
+    names_sep = "_"
+  )
+df_long
+
+df_long |>
+  group_by(group) |>
+  summarize(mean = weighted.mean(val, wts))
+```
+
+```{r}
+paths <- list.files(".", full.names = TRUE)
+paths
+```
+
+```{r}
+paths |> set_names(basename)
+```
+
+```{r}
+fnames <- basename(paths)
+files <- list()
+
+for (i in seq_along(fnames)) {
+  files[[fnames[i]]] <- paths[i]
+}
+files
+```
+
+```{r}
+fnames[2:3]
+```
+
+```{r}
+by_clarity <- diamonds |>
+  group_nest(clarity)
+by_clarity
+```
+
+```{r}
+by_clarity <- diamonds |>
+  nest(.by = clarity)
+```
+
+```{r}
+by_clarity <- by_clarity |>
+  mutate(path = str_glue("diamonds-{clarity}.csv"))
+by_clarity
+```
+
+```{r}
+# for (i in 1:nrow(by_clarity)) {
+#   write_csv(by_clarity$data[[i]], file = by_clarity$path[[i]])
+# }
+```
+
+```{r}
+carat_histogram <- function(df) {
+  ggplot(df, aes(x = carat)) +
+    geom_histogram(binwidth = 0.1)
+}
+
+carat_histogram(by_clarity$data[[1]])
+```
+
+```{r}
+by_clarity <- by_clarity |>
+  mutate(
+    plot = map(data, carat_histogram),
+    path = str_glue("clarity-{clarity}.png")
+  )
+
+# walk2(
+#   by_clarity$path,
+#   by_clarity$plot,
+#   \(path, plot) ggsave(path, plot, width = 6, height = 6)
+# )
+```
