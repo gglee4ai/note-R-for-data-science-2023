@@ -344,6 +344,9 @@ diamonds |> sorted_bars(color)
 
 
 
+```{r}
+diamonds |> sorted_bars(cut)
+```
 
 
 

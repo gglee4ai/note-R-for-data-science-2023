@@ -31,13 +31,13 @@ df
 ```
 
     # A tibble: 5 × 4
-            a      b       c      d
-        <dbl>  <dbl>   <dbl>  <dbl>
-    1  1.79    0.442  1.08    0.766
-    2 -0.0954 -0.434 -0.170  -2.01 
-    3  1.10    0.548 -0.0926 -1.12 
-    4 -1.47   -0.602  0.930  -0.927
-    5  0.329  -0.360  0.962  -0.317
+            a        b       c       d
+        <dbl>    <dbl>   <dbl>   <dbl>
+    1 -0.310  -0.00252 -0.0688 -0.0534
+    2 -0.262   1.89     0.756  -0.0235
+    3 -0.0653 -2.09    -1.71    0.0606
+    4 -0.0962  0.846   -0.157   0.725 
+    5  0.270   0.982    0.551   1.17  
 
 ``` r
 df |> mutate(
@@ -53,13 +53,13 @@ df |> mutate(
 ```
 
     # A tibble: 5 × 4
-          a     b      c     d
-      <dbl> <dbl>  <dbl> <dbl>
-    1 1     1.90  1      1    
-    2 0.421 0.306 0      0    
-    3 0.787 2.10  0.0621 0.320
-    4 0     0     0.880  0.389
-    5 0.551 0.440 0.906  0.610
+           a     b     c      d
+       <dbl> <dbl> <dbl>  <dbl>
+    1 0       1.10 0.665 0     
+    2 0.0823  2.10 1     0.0245
+    3 0.422   0    0     0.0934
+    4 0.369   1.55 0.630 0.638 
+    5 1       1.62 0.917 1     
 
 ``` r
 rescale01 <- function(x) {
@@ -89,13 +89,13 @@ df |> mutate(
 ```
 
     # A tibble: 5 × 4
-          a     b      c     d
-      <dbl> <dbl>  <dbl> <dbl>
-    1 1     0.908 1      1    
-    2 0.421 0.146 0      0    
-    3 0.787 1     0.0621 0.320
-    4 0     0     0.880  0.389
-    5 0.551 0.210 0.906  0.610
+           a     b     c      d
+       <dbl> <dbl> <dbl>  <dbl>
+    1 0      0.524 0.665 0     
+    2 0.0823 1     1     0.0245
+    3 0.422  0     0     0.0934
+    4 0.369  0.737 0.630 0.638 
+    5 1      0.771 0.917 1     
 
 ``` r
 rescale01 <- function(x) {
@@ -181,13 +181,13 @@ cv <- function(x, na.rm = FALSE) {
 cv(runif(100, min = 0, max = 50))
 ```
 
-    [1] 0.6457816
+    [1] 0.5827299
 
 ``` r
 cv(runif(100, min = 0, max = 500))
 ```
 
-    [1] 0.587906
+    [1] 0.605548
 
 ``` r
 grouped_mean <- function(df, group_var, mean_var) {
@@ -514,3 +514,15 @@ diamonds |> sorted_bars(clarity)
 ```
 
 ![](note26_files/figure-commonmark/unnamed-chunk-30-2.png)
+
+``` r
+diamonds |> sorted_bars(color)
+```
+
+![](note26_files/figure-commonmark/unnamed-chunk-31-1.png)
+
+``` r
+diamonds |> sorted_bars(cut)
+```
+
+![](note26_files/figure-commonmark/unnamed-chunk-32-1.png)
